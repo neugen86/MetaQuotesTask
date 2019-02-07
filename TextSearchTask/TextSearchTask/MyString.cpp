@@ -9,24 +9,24 @@ MyString::MyString(const char* source)
 }
 
 MyString::MyString(const char* source, size_t length)
-    : m_value(source)
+    : m_data(source)
     , m_length(length)
 {
 }
 
 MyString::MyString(const MyString& other)
     : m_isCopy(true)
-    , m_value(new char[other.length() + 1])
+    , m_data(new char[other.length() + 1])
     , m_length(other.length())
 {
-    strncpy(const_cast<char*>(m_value), other.m_value, other.length());
-    const_cast<char&>(m_value[m_length]) = '\0';
+    strncpy_s(const_cast<char*>(m_data), m_length + 1,
+              other.m_data, other.m_length);
 }
 
 MyString::~MyString()
 {
     if (m_isCopy)
-        delete[] m_value;
+        delete[] m_data;
 }
 
 MyString& MyString::operator =(const MyString& other)
@@ -42,7 +42,7 @@ MyString& MyString::operator =(const MyString& other)
     return *this;
 }
 
-bool MyString::contains(const MyString& substr, Range* range) const
+bool MyString::contains(const MyString& substr, MyRange* range) const
 {
     bool found = false;
     size_t substrPos = 0;
@@ -64,10 +64,10 @@ bool MyString::contains(const MyString& substr, Range* range) const
         }
         else if (found)
         {
+			found = false;
+
             if (range)
                 range->end = pos;
-
-            return false;
         }
 
         if (found)
@@ -85,12 +85,12 @@ bool MyString::contains(const MyString& substr, Range* range) const
     return false;
 }
 
-MyString MyString::substr(const MyString::Range& range) const
+MyString MyString::substr(const MyRange& range) const
 {
     if ((range.begin < range.end)
         && (range.end <= length()))
     {
-        return MyString(m_value + range.begin, range.end - range.begin);
+        return MyString(m_data + range.begin, range.length());
     }
 
     return MyString();
@@ -100,6 +100,6 @@ void MyString::swap(MyString& lhs, MyString& rhs) const
 {
     using std::swap;
 
-    swap(lhs.m_value, rhs.m_value);
+    swap(lhs.m_data, rhs.m_data);
     swap(lhs.m_length, rhs.m_length);
 }

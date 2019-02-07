@@ -48,7 +48,7 @@ public:
         return *this;
     }
 
-    bool empty() const { m_head != nullptr; }
+    bool empty() const { return !m_head; }
 
     T pop()
     {
