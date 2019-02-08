@@ -75,7 +75,7 @@ MyQueue<SearchCriteria> SearchCriteria::makeFilter(const MyString& value)
 {
     MyQueue<SearchCriteria> result;
 
-	if (!value.contains(" "))
+	if (!value.contains("\n") && !value.contains("\r"))
 	{
 		for (MyString tmp = value; tmp.length();)
 		{
@@ -91,8 +91,6 @@ MyQueue<SearchCriteria> SearchCriteria::makeFilter(const MyString& value)
 
 bool SearchCriteria::satisfies(const MyString& input, size_t& endPos) const
 {
-	endPos = input.length();
-
 	if (input.length() < target.length())
 		return false;
 

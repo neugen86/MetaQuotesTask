@@ -20,12 +20,14 @@ class MyQueue
 
     Item* m_head = nullptr;
     Item* m_tail = nullptr;
+	Item* m_current = nullptr;
 
 public:
     MyQueue() = default;
 
     MyQueue(const MyQueue& other)
         : m_head(copy(other.m_head, &m_tail))
+		, m_current(m_head)
     {
     }
 
@@ -33,7 +35,7 @@ public:
     {
         while (m_head)
         {
-            delete popCurrent();
+            delete popHeadItem();
         }
     }
 
@@ -52,9 +54,10 @@ public:
 
     T pop()
     {
-        Item* current = popCurrent();
-        T result = current->data;
-        delete current;
+        Item* item = popHeadItem();
+        
+		T result = item->data;
+		delete item;
 
         return result;
     }
@@ -68,16 +71,30 @@ public:
         else
         {
             m_head = new Item(data, nullptr);
-            m_tail = m_head;
+            m_current = m_tail = m_head;
         }
     }
 
+	bool getNext(T* value)
+	{
+		if (!value || !m_current)
+			return false;
+
+		*value = m_current->data;
+		m_current = m_current->next;
+
+		return true;
+	}
+
+	void reset() { m_current = m_head; }
+
 private:
-    Item* popCurrent()
+    Item* popHeadItem()
     {
-        Item* current = m_head;
+        Item* item = m_head;
         m_head = m_head->next;
-        return current;
+
+		return item;
     }
 
     Item* copy(Item* value, Item** tail)

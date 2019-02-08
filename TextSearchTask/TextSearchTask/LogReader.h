@@ -12,13 +12,13 @@ public:
 	explicit CLogReader();
 	~CLogReader();
 
-	bool Open();
+	bool Open(const char* filePath);
 	void Close();
 
 	bool SetFilter(const char* mask);
 	bool GetNextLine(char* buf, const int length);
 
 private:
-	bool GetNextWord(MyString& result) const;
+	bool GetNextString(MyString& result) const;
 
 };

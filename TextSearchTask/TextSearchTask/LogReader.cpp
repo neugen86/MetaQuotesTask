@@ -4,7 +4,16 @@
 
 namespace
 {
-const char* const TEST_STRING = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//const char* const TEST_STRING = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+	const char* const TEST_STRING =
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit,\r\n"
+		"sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n"
+		"Ut enim ad minim veniam, quis nostrud exercitation ullamco\r\n"
+		"laboris nisi ut aliquip ex ea commodo consequat.\n"
+		"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore\r\n"
+		"eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n"
+		"sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n";
 
 } // anonymous namespace
 
@@ -16,9 +25,9 @@ CLogReader::~CLogReader()
 {
 }
 
-bool CLogReader::Open()
+bool CLogReader::Open(const char* filePath)
 {
-	return false;
+	return true;
 }
 
 void CLogReader::Close()
@@ -38,34 +47,48 @@ bool CLogReader::GetNextLine(char* buf, const int length)
 	if (m_filter.empty())
 		return false;
 
-	MyString word;
-	
-	while (GetNextWord(word))
+	MyString string;
+
+	while (GetNextString(string))
 	{
-		bool satisfies = false;
+		m_filter.reset();
+
+		bool match = false;
 		size_t lastTextPos = 0;
+		
+		SearchCriteria criteria;
 
-		SearchCriteria::Filter filter = m_filter;
-
-		while (!filter.empty())
+		while (m_filter.getNext(&criteria))
 		{
-			SearchCriteria criteria = filter.pop();
+			MyRange substrRange(lastTextPos, string.length());
 
-			size_t lastSubstrPos = 0;
-			MyString substr = word.substr(MyRange(lastTextPos, word.length()));
-
-			satisfies = criteria.satisfies(substr, lastSubstrPos);
-			lastTextPos += lastSubstrPos;
-			
-			if (!satisfies)
+			if (!substrRange.length())
 				break;
+		
+			size_t lastSubstrPos = 0;
+			MyString substr = string.substr(substrRange);
+
+			if (criteria.satisfies(substr, lastSubstrPos))
+			{
+				lastTextPos += lastSubstrPos;
+				match = true;
+			}
+			else if (match)
+			{
+				m_filter.reset();
+				match = false;
+			}
+			else
+			{
+				break;
+			}
 		}
 
-		if (satisfies)
+		if (match)
 		{
-			size_t amount = (int(word.length()) - length) < 0 ? word.length() : length;
-			strncpy_s(buf, length, word.data(), amount);
-			
+			size_t amount = (int(string.length()) - length) < 0 ? string.length() : length;
+			strncpy_s(buf, length, string.data(), amount);
+
 			return true;
 		}
 	}
@@ -73,7 +96,7 @@ bool CLogReader::GetNextLine(char* buf, const int length)
 	return false;
 }
 
-bool CLogReader::GetNextWord(MyString& result) const
+bool CLogReader::GetNextString(MyString& result) const
 {
 	const size_t maxLength = strlen(TEST_STRING);
 
@@ -82,7 +105,9 @@ bool CLogReader::GetNextWord(MyString& result) const
 
 	for (; m_lastPos < maxLength; ++m_lastPos)
 	{
-		if (TEST_STRING[m_lastPos] != ' ')
+		const char symbol = TEST_STRING[m_lastPos];
+
+		if ((symbol != '\r') && (symbol != '\n'))
 			break;
 	}
 
@@ -90,13 +115,15 @@ bool CLogReader::GetNextWord(MyString& result) const
 
 	for (; m_lastPos < maxLength; ++m_lastPos)
 	{
-		if (TEST_STRING[m_lastPos] == ' ')
+		const char symbol = TEST_STRING[m_lastPos];
+
+		if ((symbol == '\r') || (symbol == '\n'))
+		{
 			break;
+		}
 	}
 
-	result = MyString(TEST_STRING + pos, m_lastPos - pos);
-
-	++m_lastPos;
+	result = MyString(TEST_STRING + pos, (m_lastPos - pos));
 
 	return !result.empty();
 }

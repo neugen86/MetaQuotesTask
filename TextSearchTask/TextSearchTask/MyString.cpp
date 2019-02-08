@@ -47,8 +47,8 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
     bool found = false;
     size_t substrPos = 0;
 
-    if (range)
-        range->begin = range->end = m_length;
+	if (range)
+		*range = MyRange(m_length);
 
     for (size_t pos = 0; pos < m_length; ++pos)
     {
@@ -65,6 +65,7 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
         else if (found)
         {
 			found = false;
+			substrPos = 0;
 
             if (range)
                 range->end = pos;
