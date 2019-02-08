@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="LogReader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyString.cpp" />
     <ClCompile Include="SearchCriteria.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileReader.h" />
     <ClInclude Include="LogReader.h" />
     <ClInclude Include="MyQueue.h" />
     <ClInclude Include="MyRange.h" />
@@ -125,7 +127,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

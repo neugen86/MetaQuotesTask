@@ -27,6 +27,7 @@ public:
     bool contains(const MyString& substr, MyRange* range = nullptr) const;
 
     MyString substr(const MyRange& range) const;
+	void append(const MyString& tail);
 
 private:
     void swap(MyString& lhs, MyString& rhs) const;

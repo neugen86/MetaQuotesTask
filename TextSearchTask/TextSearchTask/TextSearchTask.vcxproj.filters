@@ -27,6 +27,9 @@
     <ClCompile Include="SearchCriteria.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogReader.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SearchCriteria.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -55,7 +55,7 @@ public:
     T pop()
     {
         Item* item = popHeadItem();
-        
+
 		T result = item->data;
 		delete item;
 

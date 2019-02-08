@@ -1,7 +1,5 @@
 #include "SearchCriteria.h"
 
-#include <cassert>
-
 namespace
 {
 const char ANY_SYMBOL = '*';
@@ -27,7 +25,7 @@ SearchCriteria GetNextCriteria(const MyString& input, size_t& end)
 
 	bool hasText = false;
     MyRange textRange(end);
-	
+
     for (size_t pos = 0; pos < input.length(); ++pos)
     {
 		const char symbol = input.at(pos);
@@ -47,13 +45,12 @@ SearchCriteria GetNextCriteria(const MyString& input, size_t& end)
 			case ANY_SYMBOL:
 				result.strictlyCompare = false;
 				break;
-			
+
 			case SINGLE_SYMBOL:
 				++result.minIndent;
 				break;
 
 			default:
-				assert(false && "Unknown mask symbol");
 				break;
 			}
         }
@@ -63,7 +60,7 @@ SearchCriteria GetNextCriteria(const MyString& input, size_t& end)
             textRange.begin = pos;
         }
     }
-	
+
 	result.target = input.substr(textRange);
 
 	return result;
@@ -98,7 +95,7 @@ bool SearchCriteria::satisfies(const MyString& input, size_t& endPos) const
 
 	if (!target.empty() && !input.contains(target, &range))
 		return false;
-	
+
 	if (strictlyCompare && (range.begin != minIndent))
 		return false;
 

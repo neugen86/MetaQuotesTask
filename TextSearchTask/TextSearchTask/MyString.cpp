@@ -16,11 +16,13 @@ MyString::MyString(const char* source, size_t length)
 
 MyString::MyString(const MyString& other)
     : m_isCopy(true)
-    , m_data(new char[other.length() + 1])
-    , m_length(other.length())
+    , m_data(new char[other.m_length + 1])
+    , m_length(other.m_length)
 {
-    strncpy_s(const_cast<char*>(m_data), m_length + 1,
-              other.m_data, other.m_length);
+    strncpy_s(
+		const_cast<char*>(m_data), m_length + 1,
+		other.m_data, other.m_length
+	);
 }
 
 MyString::~MyString()
@@ -88,13 +90,26 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
 
 MyString MyString::substr(const MyRange& range) const
 {
-    if ((range.begin < range.end)
-        && (range.end <= length()))
-    {
-        return MyString(m_data + range.begin, range.length());
-    }
+    if ((range.begin < range.end) && (range.end <= m_length))
+		return MyString(m_data + range.begin, range.length());
 
     return MyString();
+}
+
+void MyString::append(const MyString& tail)
+{
+	const size_t total = (m_length + tail.m_length + 1);
+
+	char* data = new char[total];
+	strncpy_s(data, total, m_data, m_length);
+
+	strncpy_s(
+		data + m_length, total - m_length,
+		tail.m_data, tail.m_length
+	);
+
+	MyString tmp(data);
+	swap(*this, tmp);
 }
 
 void MyString::swap(MyString& lhs, MyString& rhs) const
