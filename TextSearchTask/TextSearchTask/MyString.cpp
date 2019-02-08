@@ -37,8 +37,6 @@ MyString& MyString::operator =(const MyString& other)
     {
         MyString tmp(other);
         swap(*this, tmp);
-
-        m_isCopy = true;
     }
 
     return *this;
@@ -110,6 +108,8 @@ void MyString::append(const MyString& tail)
 
 	MyString tmp(data);
 	swap(*this, tmp);
+
+	m_isCopy = true;
 }
 
 void MyString::swap(MyString& lhs, MyString& rhs) const
@@ -118,4 +118,5 @@ void MyString::swap(MyString& lhs, MyString& rhs) const
 
     swap(lhs.m_data, rhs.m_data);
     swap(lhs.m_length, rhs.m_length);
+	swap(lhs.m_isCopy, rhs.m_isCopy);
 }
