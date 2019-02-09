@@ -34,13 +34,13 @@ public:
 	FileReader();
 	~FileReader();
 
-	bool Open(const char* filePath);
-	void Close();
+	bool open(const char* filePath);
+	void close();
 
-	void ResetPosition();
-	bool GetNextLine(MyString& value);
+	void resetPosition();
+	bool getNextLine(MyString& value);
 
 private:
-	bool GetCurrentView();
+	bool loadFileView();
 
 };

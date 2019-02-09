@@ -26,10 +26,14 @@ public:
 	bool empty() const { return length() == 0; }
     bool contains(const MyString& substr, MyRange* range = nullptr) const;
 
-    MyString substr(const MyRange& range) const;
 	void append(const MyString& tail);
+	MyString substr(const MyRange& range) const;
+	void copy(char* buf, size_t bufsize) const;
 
 private:
     void swap(MyString& lhs, MyString& rhs) const;
 
 };
+
+bool operator !=(const MyString& lhs, const MyString& rhs);
+bool operator ==(const MyString& lhs, const MyString& rhs);

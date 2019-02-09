@@ -20,15 +20,15 @@ class MyQueue
 
     Item* m_head = nullptr;
     Item* m_tail = nullptr;
-	Item* m_current = nullptr;
+	mutable Item* m_current = nullptr;
 
 public:
     MyQueue() = default;
 
     MyQueue(const MyQueue& other)
-        : m_head(copy(other.m_head, &m_tail))
-		, m_current(m_head)
     {
+		m_head = copy(other.m_head, &m_tail);
+		m_current = m_head;
     }
 
     ~MyQueue()
@@ -67,6 +67,9 @@ public:
         if (m_head)
         {
             m_tail = new Item(data, &m_tail);
+
+			if (!m_current)
+				m_current = m_tail;
         }
         else
         {
@@ -75,7 +78,9 @@ public:
         }
     }
 
-	bool getNext(T* value)
+	void reset() const { m_current = m_head; }
+
+	bool getNext(T* value) const
 	{
 		if (!value || !m_current)
 			return false;
@@ -86,7 +91,19 @@ public:
 		return true;
 	}
 
-	void reset() { m_current = m_head; }
+	size_t size() const
+	{
+		size_t result = 0;
+		Item* current = m_head;
+
+		while (current)
+		{
+			++result;
+			current = current->next;
+		}
+
+		return result;
+	}
 
 private:
     Item* popHeadItem()
@@ -97,13 +114,19 @@ private:
 		return item;
     }
 
-    Item* copy(Item* value, Item** tail)
+    Item* copy(Item* head, Item** tail)
     {
-        Item* item = new Item(value->data, nullptr);
+		if (!head)
+		{
+			*tail = head;
+			return nullptr;
+		}
 
-        if (value->next)
+        Item* item = new Item(head->data, nullptr);
+
+        if (head->next)
         {
-            item->next = copy(value->next, tail);
+            item->next = copy(head->next, tail);
         }
         else
         {
@@ -119,5 +142,6 @@ private:
 
         swap(lhs.m_head, rhs.m_head);
         swap(lhs.m_tail, rhs.m_tail);
+		swap(lhs.m_current, rhs.m_current);
     }
 };

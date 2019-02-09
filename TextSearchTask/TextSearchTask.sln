@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextSearchTask", "TextSearchTask\TextSearchTask.vcxproj", "{C5284312-4A15-4372-9433-846275FAE7CA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxproj", "{DCE56F6E-89A3-46B8-A836-88A94A9A906F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{C5284312-4A15-4372-9433-846275FAE7CA}.Release|x64.Build.0 = Release|x64
 		{C5284312-4A15-4372-9433-846275FAE7CA}.Release|x86.ActiveCfg = Release|Win32
 		{C5284312-4A15-4372-9433-846275FAE7CA}.Release|x86.Build.0 = Release|Win32
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Debug|x64.ActiveCfg = Debug|x64
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Debug|x64.Build.0 = Debug|x64
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Debug|x86.ActiveCfg = Debug|Win32
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Debug|x86.Build.0 = Debug|Win32
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Release|x64.ActiveCfg = Release|x64
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Release|x64.Build.0 = Release|x64
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Release|x86.ActiveCfg = Release|Win32
+		{DCE56F6E-89A3-46B8-A836-88A94A9A906F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

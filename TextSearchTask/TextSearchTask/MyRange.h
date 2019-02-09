@@ -22,3 +22,6 @@ struct MyRange
 	size_t length() const { return (end > begin) ? (end - begin) : 0; }
 
 };
+
+bool operator !=(const MyRange& lhs, const MyRange& rhs);
+bool operator ==(const MyRange& lhs, const MyRange& rhs);

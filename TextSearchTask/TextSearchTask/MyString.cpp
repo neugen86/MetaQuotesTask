@@ -3,6 +3,25 @@
 #include <cstring>
 #include <utility>
 
+bool operator !=(const MyString& lhs, const MyString& rhs)
+{
+	if (lhs.length() != rhs.length())
+		return true;
+
+	for (size_t i = 0; i < lhs.length(); ++i)
+	{
+		if (lhs.at(i) != rhs.at(i))
+			return true;
+	}
+
+	return false;
+}
+
+bool operator ==(const MyString& lhs, const MyString& rhs)
+{
+	return !(lhs != rhs);
+}
+
 MyString::MyString(const char* source)
     : MyString(source, source ? strlen(source) : 0)
 {
@@ -69,6 +88,8 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
 
             if (range)
                 range->end = pos;
+
+			--pos;
         }
 
         if (found)
@@ -84,14 +105,6 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
     }
 
     return false;
-}
-
-MyString MyString::substr(const MyRange& range) const
-{
-    if ((range.begin < range.end) && (range.end <= m_length))
-		return MyString(m_data + range.begin, range.length());
-
-    return MyString();
 }
 
 void MyString::append(const MyString& tail)
@@ -110,6 +123,20 @@ void MyString::append(const MyString& tail)
 	swap(*this, tmp);
 
 	m_isCopy = true;
+}
+
+MyString MyString::substr(const MyRange& range) const
+{
+	if ((range.begin < range.end) && (range.end <= m_length))
+		return MyString(m_data + range.begin, range.length());
+
+	return MyString();
+}
+
+void MyString::copy(char* buf, size_t bufsize) const
+{
+	size_t amount = (long long(m_length) - bufsize) < 0 ? m_length : (bufsize - 1);
+	strncpy_s(buf, bufsize, m_data, amount);
 }
 
 void MyString::swap(MyString& lhs, MyString& rhs) const

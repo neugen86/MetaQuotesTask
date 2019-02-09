@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "FileReader.h"
-#include "SearchCriteria.h"
+#include "TextSearch.h"
 
 class CLogReader
 {
 	FileReader m_reader;
-	MyQueue<SearchCriteria> m_filter;
+	TextSearch::Filter m_filter;
 
 public:
 	~CLogReader();
@@ -15,6 +15,6 @@ public:
 	void Close();
 
 	bool SetFilter(const char* mask);
-	bool GetNextLine(char* buf, const int length);
+	bool GetNextLine(char* buf, size_t bufsize);
 
 };

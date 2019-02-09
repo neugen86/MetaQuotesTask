@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	{
 		std::cout
 			<< "Wrong arguments!" << std::endl
-			<< "Usage: " << argv[0] << " file_path search_mask" << std::endl;
+			<< "Usage: FILE_PATH SEARCH_MASK" << std::endl;
 
 		return 1;
 	}

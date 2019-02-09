@@ -7,7 +7,7 @@
 
 namespace Text
 {
-	bool IsLineBreak(char value)
+	bool isLineBreak(char value)
 	{
 		switch (value)
 		{
@@ -20,20 +20,20 @@ namespace Text
 		}
 	}
 
-	void SkipLineBreaks(FileView& view)
+	void skipLineBreaks(FileView& view)
 	{
 		for (; view.curPos < view.size; ++view.curPos)
 		{
-			if (!IsLineBreak(view.ptr[view.curPos]))
+			if (!isLineBreak(view.ptr[view.curPos]))
 				break;
 		}
 	}
 
-	void MoveToLineBreak(FileView& view)
+	void moveToLineBreak(FileView& view)
 	{
 		for (; view.curPos < view.size; ++view.curPos)
 		{
-			if (IsLineBreak(view.ptr[view.curPos]))
+			if (isLineBreak(view.ptr[view.curPos]))
 				break;
 		}
 	}
@@ -42,7 +42,7 @@ namespace Text
 
 namespace File
 {
-	DWORD GetChunkSize()
+	DWORD getChunkSize()
 	{
 		SYSTEM_INFO sysinfo = { 0 };
 		::GetSystemInfo(&sysinfo);
@@ -50,7 +50,7 @@ namespace File
 		return sysinfo.dwAllocationGranularity;
 	}
 
-	FileView GetView(HANDLE& handle, unsigned long long fileSize, unsigned long long offset, DWORD size)
+	FileView getView(HANDLE& handle, unsigned long long fileSize, unsigned long long offset, DWORD size)
 	{
 		unsigned long long maxSize = ((offset + size) > fileSize) ? (fileSize - offset) : size;
 
@@ -59,38 +59,42 @@ namespace File
 		const DWORD num = static_cast<DWORD>(maxSize);
 
 		const LPVOID view = ::MapViewOfFile(handle, FILE_MAP_READ, high, low, num);
-		
+
 		return FileView(static_cast<const char*>(view), static_cast<size_t>(num));
 	}
 
 } // namespace File
 
 FileReader::FileReader()
-	: CHUNK_SIZE(File::GetChunkSize())
+	: CHUNK_SIZE(File::getChunkSize())
 	, m_fileHandle(INVALID_HANDLE_VALUE)
+	, m_mappingHandle(INVALID_HANDLE_VALUE)
 {
 }
 
 FileReader::~FileReader()
 {
-	Close();
+	close();
 }
 
-bool FileReader::Open(const char* filePath)
+bool FileReader::open(const char* filePath)
 {
+	if (m_fileHandle != INVALID_HANDLE_VALUE)
+		close();
+
 	m_fileHandle = ::CreateFileA(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (INVALID_HANDLE_VALUE == m_fileHandle)
 	{
-		Close();
+		close();
 		return false;
 	}
-		
+
 	m_mappingHandle = ::CreateFileMappingW(m_fileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
 
 	if (INVALID_HANDLE_VALUE == m_mappingHandle)
 	{
-		Close();
+		close();
 		return false;
 	}
 
@@ -98,7 +102,7 @@ bool FileReader::Open(const char* filePath)
 
 	if (::GetFileSizeEx(m_fileHandle, &size) != TRUE)
 	{
-		Close();
+		close();
 		return false;
 	}
 
@@ -107,8 +111,10 @@ bool FileReader::Open(const char* filePath)
 	return true;
 }
 
-void FileReader::Close()
+void FileReader::close()
 {
+	resetPosition();
+
 	if (m_mappingHandle != INVALID_HANDLE_VALUE)
 	{
 		::CloseHandle(m_mappingHandle);
@@ -121,28 +127,27 @@ void FileReader::Close()
 		m_fileHandle = INVALID_HANDLE_VALUE;
 	}
 
-	ResetPosition();
 	m_fileSize = 0;
 }
 
-void FileReader::ResetPosition()
+void FileReader::resetPosition()
 {
 	m_fileOffset = 0;
 	m_view = FileView();
 }
 
-bool FileReader::GetNextLine(MyString& value)
+bool FileReader::getNextLine(MyString& value)
 {
-	if (m_fileOffset == m_fileSize)
+	if (m_fileOffset >= m_fileSize)
 		return false;
 
-	if (!m_view.size && !GetCurrentView())
+	if (!m_view.size && !loadFileView())
 		return false;
 
-	Text::SkipLineBreaks(m_view);
+	Text::skipLineBreaks(m_view);
 
 	size_t fromPos = m_view.curPos;
-	Text::MoveToLineBreak(m_view);
+	Text::moveToLineBreak(m_view);
 
 	value = MyString(m_view.ptr + fromPos, (m_view.curPos - fromPos));
 
@@ -152,9 +157,9 @@ bool FileReader::GetNextLine(MyString& value)
 
 		const char symbol = m_view.ptr[m_view.curPos - 1];
 
-		if (!Text::IsLineBreak(symbol) && GetCurrentView())
+		if (!Text::isLineBreak(symbol) && loadFileView())
 		{
-			Text::MoveToLineBreak(m_view);
+			Text::moveToLineBreak(m_view);
 
 			MyString tail(m_view.ptr, m_view.curPos);
 			value.append(tail);
@@ -164,9 +169,8 @@ bool FileReader::GetNextLine(MyString& value)
 	return !value.empty();
 }
 
-bool FileReader::GetCurrentView()
+bool FileReader::loadFileView()
 {
-	m_view = File::GetView(m_mappingHandle, m_fileSize, m_fileOffset, CHUNK_SIZE);
-	
+	m_view = File::getView(m_mappingHandle, m_fileSize, m_fileOffset, CHUNK_SIZE);
 	return (m_view.size > 0);
 }
