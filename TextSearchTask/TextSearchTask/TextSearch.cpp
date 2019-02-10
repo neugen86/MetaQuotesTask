@@ -72,6 +72,8 @@ namespace TextSearch
 {
 	bool Criteria::satisfies(const MyString& input, MyRange& range) const
 	{
+		range = MyRange(input.length());
+
 		if (input.length() < target.length())
 			return false;
 
@@ -117,12 +119,9 @@ namespace TextSearch
 		while (filter.getNext(&criteria))
 		{
 			MyRange substrRange(lastTextPos, line.length());
-
-			if (!substrRange.length())
-				break;
+			MyString substr = line.substr(substrRange);
 
 			MyRange criteriaRange;
-			MyString substr = line.substr(substrRange);
 
 			if (criteria.satisfies(substr, criteriaRange))
 			{

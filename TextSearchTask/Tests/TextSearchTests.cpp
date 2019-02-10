@@ -94,10 +94,29 @@ TEST(SearchCriteriaTest, CriteriaFloating)
 
 TEST(SearchCriteriaTest, FilterMatchPositive)
 {
-	EXPECT_TRUE(false);
+	const char* TEXT = "Programs are meant to be read by humans and only incidentally for computers to execute";
+
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter(TEXT)));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("Programs*")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*Programs?????meant*")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("???????????????????to be*")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*to*be??????by*and*?*?*?*to*")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*???are*to?be?read?by*and???*")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*only* for computers ??????????")));
+	EXPECT_TRUE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*meant*by*?*humans*?* to execute")));
 }
 
 TEST(SearchCriteriaTest, FilterMatchNegative)
 {
-	EXPECT_TRUE(false);
+	const char* TEXT = "Programs are meant to be read by humans and only incidentally for computers to execute";
+
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*as*")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*ly  *")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*only*be*")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("??????are*")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("??????????are*")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*premature*optimization*")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("meant to be read*to execute?")));
+	EXPECT_FALSE(TextSearch::isMatches(TEXT, TextSearch::makeFilter("*meant to be read*to execute?")));
 }

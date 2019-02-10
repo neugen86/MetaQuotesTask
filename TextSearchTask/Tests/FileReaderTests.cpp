@@ -2,13 +2,14 @@
 
 #include <fstream>
 
+#include "../TextSearchTask/MyQueue.h"
 #include "../TextSearchTask/FileReader.h"
 
 namespace
 {
 	const char* UNKNOWN_FILE_PATH = "unknown";
 	const char* DEFAULT_FILE_PATH = "testfile";
-	const char* DEFAULT_TEXT = "The quick brown fox jumps over the lazy dog";
+	const char* DEFAULT_TEXT = "An algorithm must be seen to be believed";
 
 	bool GetFile(std::fstream& file)
 	{
@@ -23,12 +24,11 @@ namespace
 	bool CreateFile()
 	{
 		std::fstream file;
-		
+
 		if (!GetFile(file))
 			return false;
-		
+
 		file.close();
-		return true;
 	}
 
 	bool FillFile(const char* text, size_t linesCount)
@@ -63,58 +63,9 @@ TEST(FileReaderTests, Open)
 	}
 }
 
-TEST(FileReaderTests, Intercept)
-{
-	const size_t LINES_COUNT = 5;
-	EXPECT_TRUE(FillFile(DEFAULT_TEXT, LINES_COUNT));
-
-	FileReader reader;
-	EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
-
-	MyString line;
-	size_t counter = 0;
-	
-	while (reader.getNextLine(line))
-	{
-		reader.close();
-		++counter;
-	}
-	EXPECT_EQ(counter, 1);
-
-	{
-		counter = 0;
-
-		EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
-
-		while (reader.getNextLine(line))
-		{
-			if (counter == LINES_COUNT / 2)
-				EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
-
-			++counter;
-		}
-		EXPECT_EQ(counter, LINES_COUNT + LINES_COUNT / 2 + 1);
-	}
-
-	{
-		counter = 0;
-
-		EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
-
-		while (reader.getNextLine(line))
-		{
-			if (counter == LINES_COUNT / 2)
-				reader.resetPosition();
-
-			++counter;
-		}
-		EXPECT_EQ(counter, LINES_COUNT + LINES_COUNT / 2 + 1);
-	}
-}
-
 TEST(FileReaderTests, Read)
 {
-	const size_t LINES_COUNT = 500000;
+	const size_t LINES_COUNT = 1000;
 
 	EXPECT_TRUE(FillFile(DEFAULT_TEXT, LINES_COUNT));
 
@@ -129,4 +80,102 @@ TEST(FileReaderTests, Read)
 		++counter;
 	}
 	EXPECT_EQ(counter, LINES_COUNT);
+}
+
+TEST(FileReaderTests, InterceptionClose)
+{
+	const size_t LINES_COUNT = 10;
+	const size_t STOP_INDEX = LINES_COUNT / 2;
+
+	EXPECT_TRUE(FillFile(DEFAULT_TEXT, LINES_COUNT));
+
+	MyString line;
+	size_t counter = 0;
+
+	FileReader reader;
+	EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
+
+	while (reader.getNextLine(line))
+	{
+		if (STOP_INDEX == counter)
+			reader.close();
+
+		++counter;
+	}
+
+	EXPECT_EQ(counter, STOP_INDEX + 1);
+}
+
+TEST(FileReaderTests, InterceptionOpen)
+{
+	const size_t LINES_COUNT = 10;
+	const size_t STOP_INDEX = LINES_COUNT / 2;
+
+	EXPECT_TRUE(FillFile(DEFAULT_TEXT, LINES_COUNT));
+
+	MyString line;
+	MyQueue<MyString> lines;
+
+	size_t counter = 0;
+	bool stopped = false;
+
+	FileReader reader;
+	EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
+
+	while (reader.getNextLine(line))
+	{
+		if (stopped && !lines.empty())
+			EXPECT_EQ(line, lines.pop());
+
+		if (counter != STOP_INDEX)
+		{
+			if (!stopped)
+				lines.push(line);
+		}
+		else
+		{
+			EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
+		}
+
+		++counter;
+	}
+
+	EXPECT_EQ(counter, LINES_COUNT + STOP_INDEX + 1);
+}
+
+TEST(FileReaderTests, InterceptionResetPosition)
+{
+	const size_t LINES_COUNT = 10;
+	const size_t STOP_INDEX = LINES_COUNT / 2;
+
+	EXPECT_TRUE(FillFile(DEFAULT_TEXT, LINES_COUNT));
+
+	MyString line;
+	MyQueue<MyString> lines;
+
+	size_t counter = 0;
+	bool stopped = false;
+
+	FileReader reader;
+	EXPECT_TRUE(reader.open(DEFAULT_FILE_PATH));
+
+	while (reader.getNextLine(line))
+	{
+		if (stopped && !lines.empty())
+			EXPECT_EQ(line, lines.pop());
+
+		if (counter != STOP_INDEX)
+		{
+			if (!stopped)
+				lines.push(line);
+		}
+		else
+		{
+			reader.resetPosition();
+		}
+
+		++counter;
+	}
+
+	EXPECT_EQ(counter, LINES_COUNT + STOP_INDEX + 1);
 }

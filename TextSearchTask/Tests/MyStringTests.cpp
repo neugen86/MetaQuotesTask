@@ -5,7 +5,7 @@
 namespace
 {
 	const size_t DEFAULT_SIZE = 10;
-	const char* TEST_CHARS = "abcdefghijklmnopqrstuvwxyz";
+	const char* TEST_CHARS = "Premature optimization is the root of all evil";
 
 	const char* GetChars(size_t size)
 	{
@@ -27,7 +27,7 @@ namespace
 TEST(MyStringTests, Empty)
 {
 	MyString string;
-	
+
 	EXPECT_TRUE(string.empty());
 	EXPECT_EQ(string.length(), 0);
 	EXPECT_EQ(string.data(), nullptr);
@@ -36,7 +36,7 @@ TEST(MyStringTests, Empty)
 TEST(MyStringTests, CtorPtr)
 {
 	MyString string(TEST_CHARS);
-	
+
 	EXPECT_FALSE(string.empty());
 	EXPECT_EQ(string.data(), TEST_CHARS);
 	EXPECT_EQ(string.length(), strlen(TEST_CHARS));
@@ -114,22 +114,22 @@ TEST(MyStringTests, AppendContains)
 	const size_t WORDS_AMOUNT = 3;
 	const char* const UNKNOWN_WORD = "unknown";
 	const char* const WORDS[WORDS_AMOUNT] = { "foo", "foobar", "foobarbaz" };
-	
+
 	size_t length = 0;
 	MyRange ranges[WORDS_AMOUNT];
 
 	MyString string;
-	
+
 	for (size_t i = 0; i < WORDS_AMOUNT; ++i)
 	{
 		const char* word = WORDS[i];
-		
+
 		string.append(word);
 		string.append(SPACE);
 
 		ranges[i].begin = length;
 		ranges[i].end = length + strlen(word);
-		
+
 		length += strlen(word) + strlen(SPACE);
 	}
 	EXPECT_EQ(string.length(), length);
@@ -149,32 +149,32 @@ TEST(MyStringTests, AppendContains)
 TEST(MyStringTests, SubstrCopy)
 {
 	const MyString SPACE(" ");
-	
+
 	const size_t BUF_SIZE = 4;
 	const MyRange BUF_RANGE(0, BUF_SIZE - 1);
-	
-	const char* DATA = "theese are not the droids you looking for";
+
+	const char* DATA = "Theese are not the droids you looking for";
 	const size_t DATA_LENGTH = strlen(DATA);
-	
+
 	size_t pos = 0;
 	char buf[BUF_SIZE] = {};
-	
+
 	while (pos < DATA_LENGTH)
 	{
 		MyRange range;
 		MyString string = MyString(DATA + pos);
-		
+
 		if (!string.contains(SPACE, &range))
 			EXPECT_EQ(range.begin, string.length());
 
 		MyRange substrRange(0, range.begin);
 		MyString substr = string.substr(substrRange);
-		
+
 		EXPECT_FALSE(substr.empty());
 		EXPECT_EQ(substr.length(), substrRange.length());
-		
+
 		EXPECT_NO_FATAL_FAILURE(substr.copy(buf, BUF_SIZE));
-		
+
 		MyString substrCopy(buf);
 		EXPECT_EQ(substrCopy.length(), (BUF_SIZE - 1));
 

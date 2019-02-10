@@ -90,7 +90,7 @@ bool FileReader::open(const char* filePath)
 		return false;
 	}
 
-	m_mappingHandle = ::CreateFileMappingW(m_fileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
+	m_mappingHandle = ::CreateFileMapping(m_fileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
 
 	if (INVALID_HANDLE_VALUE == m_mappingHandle)
 	{
@@ -132,8 +132,11 @@ void FileReader::close()
 
 void FileReader::resetPosition()
 {
-	m_fileOffset = 0;
+	if (m_view.ptr)
+		::UnmapViewOfFile(m_view.ptr);
+
 	m_view = FileView();
+	m_fileOffset = 0;
 }
 
 bool FileReader::getNextLine(MyString& value)
@@ -155,9 +158,9 @@ bool FileReader::getNextLine(MyString& value)
 	{
 		m_fileOffset += m_view.size;
 
-		const char symbol = m_view.ptr[m_view.curPos - 1];
+		const char lastSymbol = m_view.ptr[m_view.curPos - 1];
 
-		if (!Text::isLineBreak(symbol) && loadFileView())
+		if (loadFileView() && !Text::isLineBreak(lastSymbol))
 		{
 			Text::moveToLineBreak(m_view);
 
@@ -166,11 +169,18 @@ bool FileReader::getNextLine(MyString& value)
 		}
 	}
 
-	return !value.empty();
+	if (value.empty())
+		return getNextLine(value);
+
+	return true;
 }
 
 bool FileReader::loadFileView()
 {
+	if (m_view.ptr)
+		::UnmapViewOfFile(m_view.ptr);
+
 	m_view = File::getView(m_mappingHandle, m_fileSize, m_fileOffset, CHUNK_SIZE);
+
 	return (m_view.size > 0);
 }
