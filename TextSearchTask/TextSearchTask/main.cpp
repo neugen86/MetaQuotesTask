@@ -2,43 +2,57 @@
 
 #include "LogReader.h"
 
-void SearchAll(CLogReader& reader)
+namespace
 {
-	const size_t bufsize = 1024;
-	char buffer[bufsize];
-
-	std::cout << "Search results:" << std::endl;
-
-	while (reader.GetNextLine(buffer, bufsize))
+	bool Init(CLogReader& reader, const char* filePath, const char* searchMask)
 	{
-		std::cout << std::endl << buffer << std::endl;
+		std::cout << "File Path: " << filePath << std::endl;
+		std::cout << "Search Mask: " << searchMask << std::endl;
+
+		if (!reader.Open(filePath))
+		{
+			std::cout << "File open error" << std::endl;
+			return false;
+		}
+
+		if (!reader.SetFilter(searchMask))
+		{
+			std::cout << "Invalid search mask" << std::endl;
+			return false;
+		}
+
+		return true;
 	}
-}
+
+	void SearchAll(CLogReader& reader)
+	{
+		const size_t bufsize = 1024;
+		char buffer[bufsize];
+
+		std::cout << "Search results:" << std::endl;
+
+		while (reader.GetNextLine(buffer, bufsize))
+		{
+			std::cout << std::endl << buffer << std::endl;
+		}
+	}
+
+} // anonymous namespace
 
 int main(int argc, char* argv[])
 {
 	if (argc < 3)
 	{
-		std::cout
-			<< "Wrong arguments!" << std::endl
-			<< "Usage: FILE_PATH SEARCH_MASK" << std::endl;
+		std::cout << "Wrong arguments!" << std::endl
+			<< "Usage: \"path_to_file\" \"search_mask\"" << std::endl;
 
 		return 1;
 	}
 
 	CLogReader reader;
 
-	if (!reader.Open(argv[1]))
-	{
-		std::cout << "File open error" << std::endl;
+	if (!Init(reader, argv[1], argv[2]))
 		return 2;
-	}
-
-	if (!reader.SetFilter(argv[2]))
-	{
-		std::cout << "Invalid search mask" << std::endl;
-		return 3;
-	}
 
 	SearchAll(reader);
 
