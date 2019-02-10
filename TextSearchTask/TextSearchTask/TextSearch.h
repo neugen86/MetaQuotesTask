@@ -23,4 +23,4 @@ namespace TextSearch
 	bool operator !=(const Criteria& lhs, const Criteria& rhs);
 	bool operator ==(const Criteria& lhs, const Criteria& rhs);
 
-} // TextSearch
+} // namespace TextSearch

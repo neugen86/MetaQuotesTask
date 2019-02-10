@@ -32,7 +32,7 @@ bool CLogReader::GetNextLine(char* buf, size_t bufsize)
 	{
 		if (TextSearch::isMatches(line, m_filter))
 		{
-			line.copy(buf, bufsize);
+			line.copyTo(buf, bufsize);
 			return true;
 		}
 	}

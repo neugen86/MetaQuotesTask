@@ -76,12 +76,14 @@ TEST(MyStringTests, Iterating)
 	}
 }
 
-TEST(MyStringTests, Copy)
+TEST(MyStringTests, CopyCtor)
 {
 	const char* buf = GetChars(DEFAULT_SIZE);
 
 	MyString view(buf);
 	MyString anotherView(buf);
+
+	EXPECT_EQ(view, anotherView);
 
 	EXPECT_EQ(view.length(), DEFAULT_SIZE);
 
@@ -94,8 +96,8 @@ TEST(MyStringTests, Copy)
 
 		MyString* anotherCopy = new MyString(*copy);
 
-		EXPECT_EQ(view.length(), copy->length());
-		EXPECT_EQ(view.length(), anotherCopy->length());
+		EXPECT_EQ(*copy, view);
+		EXPECT_EQ(*copy, *anotherCopy);
 
 		EXPECT_NE(view.data(), copy->data());
 		EXPECT_NE(view.data(), anotherCopy->data());
@@ -173,7 +175,7 @@ TEST(MyStringTests, SubstrCopy)
 		EXPECT_FALSE(substr.empty());
 		EXPECT_EQ(substr.length(), substrRange.length());
 
-		EXPECT_NO_FATAL_FAILURE(substr.copy(buf, BUF_SIZE));
+		EXPECT_NO_FATAL_FAILURE(substr.copyTo(buf, BUF_SIZE));
 
 		MyString substrCopy(buf);
 		EXPECT_EQ(substrCopy.length(), (BUF_SIZE - 1));

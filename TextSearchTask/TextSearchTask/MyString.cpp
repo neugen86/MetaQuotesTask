@@ -38,10 +38,7 @@ MyString::MyString(const MyString& other)
     , m_data(new char[other.m_length + 1])
     , m_length(other.m_length)
 {
-    strncpy_s(
-		const_cast<char*>(m_data), m_length + 1,
-		other.m_data, other.m_length
-	);
+	other.copyTo(const_cast<char*>(m_data), m_length + 1);
 }
 
 MyString::~MyString()
@@ -110,14 +107,10 @@ bool MyString::contains(const MyString& substr, MyRange* range) const
 void MyString::append(const MyString& tail)
 {
 	const size_t total = (m_length + tail.m_length + 1);
-
 	char* data = new char[total];
-	strncpy_s(data, total, m_data, m_length);
 
-	strncpy_s(
-		data + m_length, total - m_length,
-		tail.m_data, tail.m_length
-	);
+	this->copyTo(data, total);
+	tail.copyTo(data + m_length, total - m_length);
 
 	MyString tmp(data);
 	swap(*this, tmp);
@@ -133,7 +126,7 @@ MyString MyString::substr(const MyRange& range) const
 	return MyString();
 }
 
-void MyString::copy(char* buf, size_t bufsize) const
+void MyString::copyTo(char* buf, size_t bufsize) const
 {
 	size_t amount = (long long(m_length) - bufsize) < 0 ? m_length : (bufsize - 1);
 	strncpy_s(buf, bufsize, m_data, amount);

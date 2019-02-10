@@ -19,7 +19,10 @@ struct MyRange
 	{
 	}
 
-	size_t length() const { return (end > begin) ? (end - begin) : 0; }
+	size_t length() const
+	{
+		return ((long long(end) - begin) > 0) ? (end - begin) : 0;
+	}
 
 };
 

@@ -53,8 +53,9 @@ namespace
 
 TEST(FileReaderTests, Open)
 {
+	CreateFile();
+
 	FileReader reader;
-	EXPECT_TRUE(CreateFile());
 
 	for (size_t i = 0; i < 3; ++i)
 	{

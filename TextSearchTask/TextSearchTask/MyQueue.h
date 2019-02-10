@@ -144,4 +144,5 @@ private:
         swap(lhs.m_tail, rhs.m_tail);
 		swap(lhs.m_current, rhs.m_current);
     }
+
 };

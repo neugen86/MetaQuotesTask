@@ -28,7 +28,7 @@ public:
 
 	void append(const MyString& tail);
 	MyString substr(const MyRange& range) const;
-	void copy(char* buf, size_t bufsize) const;
+	void copyTo(char* buf, size_t bufsize) const;
 
 private:
     void swap(MyString& lhs, MyString& rhs) const;
