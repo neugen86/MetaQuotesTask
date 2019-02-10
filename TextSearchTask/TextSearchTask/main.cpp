@@ -1,9 +1,19 @@
 #include <iostream>
 
+#include "consoleapi.h"
+
 #include "LogReader.h"
 
 namespace
 {
+	bool _stop = false;
+
+	BOOL WINAPI StopSearch(DWORD)
+	{
+		_stop = true;
+		return true;
+	}
+
 	bool Init(CLogReader& reader, const char* filePath, const char* searchMask)
 	{
 		std::cout << "File Path: " << filePath << std::endl;
@@ -21,6 +31,8 @@ namespace
 			return false;
 		}
 
+		::SetConsoleCtrlHandler(&StopSearch, TRUE);
+
 		return true;
 	}
 
@@ -31,7 +43,7 @@ namespace
 
 		std::cout << "Search results:" << std::endl;
 
-		while (reader.GetNextLine(buffer, bufsize))
+		while (!_stop && reader.GetNextLine(buffer, bufsize))
 		{
 			std::cout << std::endl << buffer << std::endl;
 		}
